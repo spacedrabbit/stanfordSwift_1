@@ -37,10 +37,36 @@ class ViewController: UIViewController {
         }
         
         switch operation {
+            
             // it is possible to send functions as arguments to other funcitons
             // the receiving function just has to specify what kind of function
             // it allows, much like passing blocks in ObjC
-        case "×": performOperation(multiply)
+        // case "×": performOperation(multiply)
+            
+            // additionally, you can just write the function inline with the call
+            // to the receiving function. In this case, it is essentially a copy/paste
+            // of the function's signature with some slight alterations
+            /*
+                func multiply(opt1: Double, opt2: Double) -> Double{
+                    return opt1 * opt2
+                }
+                
+                // take everything after the function's name
+                (opt1: Double, opt2: Double) -> Double{
+                    return opt1 * opt2
+                }
+            
+                // move the opening '{' and put it at the very front
+                // and add 'in' where it used to be
+                { (opt1: Double, opt2: Double) -> Double in
+                    return opt1 * opt2
+                }
+            */
+            
+        case "×": performOperation({(opt1: Double, opt2: Double) -> Double in
+            return opt1 * opt2
+            })
+            
 //        case "÷": performOperation()
 //        case "+":
 //        case "−":
@@ -58,11 +84,7 @@ class ViewController: UIViewController {
             enterKey()
         }
     }
-    
-    func multiply(opt1: Double, opt2: Double) -> Double{
-        return opt1 * opt2
-    }
-    
+
     // because swift is strongly typed, it can perform many type inferences 
     // in this case, our variable declaration could be written as:
     //
