@@ -44,7 +44,7 @@ class ViewController: UIViewController {
         // case "×": performOperation(multiply)
             
             // additionally, you can just write the function inline with the call
-            // to the receiving function. In this case, it is essentially a copy/paste
+            // using closures. In this case, it is essentially a copy/paste
             // of the function's signature with some slight alterations
             /*
                 func multiply(opt1: Double, opt2: Double) -> Double{
@@ -61,9 +61,20 @@ class ViewController: UIViewController {
                 { (opt1: Double, opt2: Double) -> Double in
                     return opt1 * opt2
                 }
+            
+                // this gets us to this:
+                performOperation({(opt1: Double, opt2: Double) -> Double in
+                    return opt1 * opt2
+                })
+            
+                // But, since Swift is really good at type inference, we dont
+                // need to specify the types we pass into our function
+                performOperation({(opt1, opt2) in
+                    return opt1 * opt2
+                })
             */
             
-        case "×": performOperation({(opt1: Double, opt2: Double) -> Double in
+        case "×": performOperation({(opt1, opt2) in
             return opt1 * opt2
             })
             
