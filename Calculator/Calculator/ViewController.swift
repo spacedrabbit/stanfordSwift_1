@@ -69,18 +69,31 @@ class ViewController: UIViewController {
             
                 // But, since Swift is really good at type inference, we dont
                 // need to specify the types we pass into our function
-                performOperation({(opt1, opt2) in
-                    return opt1 * opt2
-                })
+                performOperation({ (opt1, opt2) in return opt1 * opt2 })
+            
+                // If our whole implementation is just an expression, the return
+                // keyword isn't needed either. Swift also already knows that
+                // performOperation returns something
+                performOperation({ (opt1, opt2) in opt1 * opt2 })
+            
+                // Further, you dont need to name your variables passed. If you
+                // dont name them, swift refers to them as $0 and $1, etc.
+                performOperation({ $0 * $1 })
+            
+                // Now, if a function receives another function as an argument AND
+                // that is the last parameter -- meaning there could be other arugments
+                // needed, but they come before the function argument -- then you 
+                // can write the expression outside of the parenthesis
+                performOperation() { $0 * $1 }
+            
+                // Lastly, if a function is the only argument passed, you can drop the ()
+                performOperation { $0 * $1 }
             */
             
-        case "×": performOperation({(opt1, opt2) in
-            return opt1 * opt2
-            })
-            
-//        case "÷": performOperation()
-//        case "+":
-//        case "−":
+        case "×": performOperation { $0 * $1 }
+        case "÷": performOperation { $1 / $0 }
+        case "+": performOperation { $0 + $1 }
+        case "−": performOperation { $1 - $0 }
         
         default:
             println("Stuff")
