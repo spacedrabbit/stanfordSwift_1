@@ -94,7 +94,8 @@ class ViewController: UIViewController {
         case "÷": performOperation { $1 / $0 }
         case "+": performOperation { $0 + $1 }
         case "−": performOperation { $1 - $0 }
-        
+        //case "−": performOperation { sqrt($0) }
+            
         default:
             println("Stuff")
         }
@@ -108,6 +109,13 @@ class ViewController: UIViewController {
             enterKey()
         }
     }
+    
+//    func performOperation(operation: Double -> Double){
+//        if operandStack.count >= 1{
+//            displayValue = operation(operandStack.removeLast())
+//            enterKey()
+//        }
+//    }
 
     // because swift is strongly typed, it can perform many type inferences 
     // in this case, our variable declaration could be written as:
