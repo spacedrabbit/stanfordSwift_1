@@ -43,9 +43,10 @@ class ViewController: UIViewController {
             // it allows, much like passing blocks in ObjC
         // case "×": performOperation(multiply)
             
-            // additionally, you can just write the function inline with the call
-            // using closures. In this case, it is essentially a copy/paste
-            // of the function's signature with some slight alterations
+            /* additionally, you can just write the function inline with 
+                the call using closures. In this case, it is essentially a 
+                copy/paste of the function's signature with some 
+                slight alterations */
             /*
                 func multiply(opt1: Double, opt2: Double) -> Double{
                     return opt1 * opt2
@@ -94,7 +95,7 @@ class ViewController: UIViewController {
         case "÷": performOperation { $1 / $0 }
         case "+": performOperation { $0 + $1 }
         case "−": performOperation { $1 - $0 }
-        //case "−": performOperation { sqrt($0) }
+        //case "√": performOperation { sqrt($0) }
             
         default:
             println("Stuff")
