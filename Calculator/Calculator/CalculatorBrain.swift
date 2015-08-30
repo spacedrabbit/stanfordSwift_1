@@ -100,20 +100,22 @@ class CalculatorBrain
     // evalutes opStack and return value
     func evaluate() -> Double? {
         let (result, remainder) = evaluate(opStack)
+        println("\(opStack) = \(result) with \(remainder) left over")
         return result
     }
     
-    func pushOperand(operand: Double){
+    func pushOperand(operand: Double) -> Double? {
         // this statement effectively says, to add type Op.Operand with value of operand to the opStack
         opStack.append(Op.Operand(operand))
+        return evaluate()
     }
     
-    func performOperation(symbol: String){
+    func performOperation(symbol: String) -> Double? {
         // here, operation is really an Optional, because the key we look up may not actually exist or have 
         // a value. So we use an if let to conditionally unwrap it for use
         if let operation = knownOps[symbol] {
             opStack.append(operation)
         }
-        
+        return evaluate()
     }
 }
