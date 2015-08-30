@@ -14,16 +14,40 @@ class CalculatorBrain
     // one of the associated members -- you can be an Op.Operand, but not an Op.Unary at the
     // same time. In our "operation stack", the values stored in the array will either
     // be an operator or an operand
-    private enum Op{
+    
+    // Printable: classes or structs: this is a protocol. This enum implements the Printable protocol
+    // which just returns a string from the variable .description
+    private enum Op: Printable{
         case Operand(Double)
         case UnaryOperation(String, Double -> Double)
         case BinaryOperation(String, (Double, Double) -> Double)
+        
+        // a read-only, computed value
+        var description: String{
+            get {
+                switch self {
+                case .Operand(let operand):
+                    return "\(operand)"
+                case .UnaryOperation(let symbol, _):
+                    return symbol
+                case .BinaryOperation(let symbol, _):
+                    return symbol
+                }
+            }
+        }
     }
     
     private var opStack = [Op]()
     private var knownOps = [String: Op]()
     
     init(){
+        
+        // we put this funciton inside of init because otherwise we'd have to add private to it
+        // implement this for hw
+//        func learnOp(op: Op){
+//            knownOps[op.description] = op
+//        }
+        
         // these dictionary values match the operations defined in the first and second lecture
         
         // point of focus: binary operators in swift are actually functions that specify that they can be infix
