@@ -11,6 +11,8 @@ import UIKit
 class ViewController : UIViewController {
 
     @IBOutlet weak var display: UILabel!
+    @IBOutlet weak var history: UILabel!
+    
     var userIsTypingANumber: Bool = false
     var hasDecimal: Bool = false
     
@@ -66,6 +68,8 @@ class ViewController : UIViewController {
         if userIsTypingANumber{
             enterKey()
         }
+    
+        addActionToHistory(operation)
         
         switch operation {
             
@@ -82,20 +86,34 @@ class ViewController : UIViewController {
         default:
             println("Stuff")
         }
+        
+    }
+    
+    func addActionToHistory(additionalText: String){
+        if let currentHistory = self.history.text {
+           self.history.text = currentHistory + "\n" + additionalText
+        }
     }
     
     // this function accepts another function as a argument
     // that function has the signature of taking two Doubles and returning a Double
     func performOperation(operation: (Double, Double) -> Double){
         if operandStack.count >= 2{
-            displayValue = operation(operandStack.removeLast(), operandStack.removeLast())
+            
+            let op1 = operandStack.removeLast()
+            let op2 = operandStack.removeLast()
+            
+            displayValue = operation(op1, op2)
             enterKey()
         }
     }
     
     private func performOperation(operation: Double -> Double){
         if operandStack.count >= 1{
-            displayValue = operation(operandStack.removeLast())
+            
+            let op1 = operandStack.removeLast()
+            
+            displayValue = operation(op1)
             enterKey()
         }
     }
@@ -105,6 +123,7 @@ class ViewController : UIViewController {
     @IBAction func enterKey() {
         userIsTypingANumber = false
         hasDecimal = false
+        addActionToHistory("\(displayValue)")
         operandStack.append(displayValue)
         println("operand stack = \(operandStack)")
     }
@@ -124,6 +143,9 @@ class ViewController : UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.history.numberOfLines = 0
+        self.history.textAlignment = .Right
+        self.history.text = ""
         // Do any additional setup after loading the view, typically from a nib.
     }
 
