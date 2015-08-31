@@ -12,6 +12,7 @@ class ViewController : UIViewController {
 
     @IBOutlet weak var display: UILabel!
     var userIsTypingANumber: Bool = false
+    var hasDecimal: Bool = false
     
     // this action handles all digit presses
     @IBAction func appendDigit(sender: UIButton) {
@@ -20,15 +21,18 @@ class ViewController : UIViewController {
         println("digit = \(digit)")
 
         if userIsTypingANumber {
-            display.text = display.text! + digit
-        } else {
-            if digit == "π" {
-                digit = "\(M_PI)"
-                enterKey()
+            if hasDecimal && digit == "." {
+                
             } else {
-                userIsTypingANumber = true
+                display.text = display.text! + digit
             }
+        } else {
+            userIsTypingANumber = true
             display.text = digit
+        }
+        
+        if digit == "." {
+            hasDecimal = true
         }
     }
     
@@ -100,6 +104,7 @@ class ViewController : UIViewController {
     
     @IBAction func enterKey() {
         userIsTypingANumber = false
+        hasDecimal = false
         operandStack.append(displayValue)
         println("operand stack = \(operandStack)")
     }
