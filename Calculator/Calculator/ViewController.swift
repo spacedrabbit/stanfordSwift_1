@@ -14,27 +14,28 @@ class ViewController : UIViewController {
     @IBOutlet weak var history: UILabel!
     
     var userIsTypingANumber: Bool = false
-    var hasDecimal: Bool = false
+    enum KnownConstants {
+        case pi(Double)
+        
+    }
     
-    // this action handles all digit presses
+    // this action handles all digit & . presses
     @IBAction func appendDigit(sender: UIButton) {
         
         var digit = sender.currentTitle!
-        println("digit = \(digit)")
-
-        if userIsTypingANumber {
-            if hasDecimal && digit == "." {
-                
-            } else {
-                display.text = display.text! + digit
-            }
-        } else {
-            userIsTypingANumber = true
-            display.text = digit
-        }
         
-        if digit == "." {
-            hasDecimal = true
+        // essentially, userIsTypingANumber is also a check for
+        // whether the first character has been entered. this is why
+        // I check for "." at this point in order to correctly display
+        // the decimal value when a user begins with typing "."
+        if userIsTypingANumber {
+            //if a decimal already exists, and the "." button is pressed
+            if display.text?.rangeOfString(".") != nil && digit == "."{ return }
+            display.text = display.text! + digit
+            
+        } else {
+            display.text = (digit == ".") ? "0." : digit
+            userIsTypingANumber = true
         }
     }
     
@@ -84,7 +85,7 @@ class ViewController : UIViewController {
         case "sin": performOperation { __sinpi($0 / 180) }
             
         default:
-            println("Stuff")
+            println("Unknown case encountered")
         }
         
     }
@@ -122,7 +123,6 @@ class ViewController : UIViewController {
     
     @IBAction func enterKey() {
         userIsTypingANumber = false
-        hasDecimal = false
         addActionToHistory("\(displayValue)")
         operandStack.append(displayValue)
         println("operand stack = \(operandStack)")
