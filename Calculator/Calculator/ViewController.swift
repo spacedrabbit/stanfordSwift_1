@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController : UIViewController {
 
     @IBOutlet weak var display: UILabel!
     var userIsTypingANumber: Bool = false
@@ -94,7 +94,7 @@ class ViewController: UIViewController {
         case "÷": performOperation { $1 / $0 }
         case "+": performOperation { $0 + $1 }
         case "−": performOperation { $1 - $0 }
-        //case "−": performOperation { sqrt($0) }
+        case "√": performOperation { sqrt($0) }
             
         default:
             println("Stuff")
@@ -110,12 +110,12 @@ class ViewController: UIViewController {
         }
     }
     
-//    func performOperation(operation: Double -> Double){
-//        if operandStack.count >= 1{
-//            displayValue = operation(operandStack.removeLast())
-//            enterKey()
-//        }
-//    }
+    private func performOperation(operation: Double -> Double){
+        if operandStack.count >= 1{
+            displayValue = operation(operandStack.removeLast())
+            enterKey()
+        }
+    }
 
     // because swift is strongly typed, it can perform many type inferences 
     // in this case, our variable declaration could be written as:
@@ -123,7 +123,7 @@ class ViewController: UIViewController {
     // var operandStack: Array<Double> = Array<Double>()
     //
     // but we can omit the Array<T> before the equals because of that inference
-    var operandStack = Array<Double>()
+    var operandStack = [Double]()
     
     @IBAction func enterKey() {
         userIsTypingANumber = false
