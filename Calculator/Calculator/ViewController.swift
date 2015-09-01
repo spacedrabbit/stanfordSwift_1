@@ -14,9 +14,20 @@ class ViewController : UIViewController {
     @IBOutlet weak var history: UILabel!
     
     var userIsTypingANumber: Bool = false
-    enum KnownConstants {
-        case pi(Double)
+    var knownConstants = ["π" : M_PI, "e" : M_E]
+    
+    @IBAction func clearAll() {
         
+        // just some UI feedback to let you know something happened
+        display.alpha = 0.0
+        UIView.animateWithDuration(0.25, animations: {
+            self.display.alpha = 1.0
+        } )
+        UIView.setAnimationCurve(.EaseIn)
+        
+        display.text = "0.0"
+        history.text = ""
+        operandStack = [Double]()
     }
     
     // this action handles all digit & . presses
@@ -24,43 +35,39 @@ class ViewController : UIViewController {
         
         var digit = sender.currentTitle!
         
-        // essentially, userIsTypingANumber is also a check for
-        // whether the first character has been entered. this is why
-        // I check for "." at this point in order to correctly display
-        // the decimal value when a user begins with typing "."
+        if let constantValue = valueForConstant(digit) {
+            
+            if userIsTypingANumber { enterKey() } // clears display and adds value to operand stack
+            
+            digit = "\(constantValue)"
+            display.text = digit
+            enterKey()
+            
+            return // exits early since a constant involves displaying a value
+                   // and then immediately adding it to the stack, whereas a operand
+                   // may be followed by more operands
+        }
+        
+        /* 
+            essentially, userIsTypingANumber is also a check for
+            whether the first character has been entered. this is why
+            we can check for "." at this point in order to correctly display
+            the decimal value when a user begins an operand by typing "."
+        */
         if userIsTypingANumber {
             //if a decimal already exists, and the "." button is pressed
             if display.text?.rangeOfString(".") != nil && digit == "."{ return }
             display.text = display.text! + digit
             
         } else {
-            display.text = (digit == ".") ? "0." : digit
+            display.text = (digit == ".") ? "0." : digit // prefixes a value < 0 with 0.
             userIsTypingANumber = true
         }
     }
     
-    @IBAction func appendSymbol(sender: UIButton) {
-        
-        var symbol = sender.currentTitle!
-        var value: Double
-        var numericString: String
-        println("symbol \(symbol)")
-        
-        if userIsTypingANumber {
-            enterKey()
-        }
-        
-        switch symbol {
-        case "π":
-            value = M_PI
-        case "e":
-            value = M_E
-        default:
-            value = 0.0
-        }
-        
-        display.text = "\(value)"
-        enterKey()
+    func valueForConstant(symbol: String) -> Double? {
+        let allConstants = Set.init(knownConstants.keys.array)
+        return allConstants.contains(symbol) ? knownConstants[symbol] : nil;
     }
     
     @IBAction func operate(sender: UIButton) {
@@ -90,14 +97,13 @@ class ViewController : UIViewController {
         
     }
     
+    // for displaying operand/operator history, will not work if history is too long
     func addActionToHistory(additionalText: String){
         if let currentHistory = self.history.text {
            self.history.text = currentHistory + "\n" + additionalText
         }
     }
     
-    // this function accepts another function as a argument
-    // that function has the signature of taking two Doubles and returning a Double
     func performOperation(operation: (Double, Double) -> Double){
         if operandStack.count >= 2{
             
