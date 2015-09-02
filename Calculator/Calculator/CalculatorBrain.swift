@@ -15,7 +15,7 @@ class CalculatorBrain
     // same time. In our "operation stack", the values stored in the array will either
     // be an operator or an operand
     
-    // Printable: classes or structs: this is a protocol. This enum implements the Printable protocol
+    // Printable: (classes or structs) this is a protocol. This enum implements the Printable protocol
     // which just returns a string from the variable .description
     private enum Op: Printable{
         case Operand(Double)
@@ -43,6 +43,7 @@ class CalculatorBrain
     init(){
         
         // we put this funciton inside of init because otherwise we'd have to add private to it
+        
         // implement this for hw
 //        func learnOp(op: Op){
 //            knownOps[op.description] = op
@@ -59,9 +60,9 @@ class CalculatorBrain
         //        knownOps["−"] = Op.BinaryOperation("−", { $1 - $0 })
         
         knownOps["×"] = Op.BinaryOperation("×", *)
-        knownOps["÷"] = Op.BinaryOperation("÷", { $1 / $0 })
+        knownOps["÷"] = Op.BinaryOperation("÷") { $1 / $0 }
         knownOps["+"] = Op.BinaryOperation("+", +)
-        knownOps["−"] = Op.BinaryOperation("−", { $1 - $0 })
+        knownOps["−"] = Op.BinaryOperation("−") { $1 - $0 }
         
         //knownOps["√"] = Op.UnaryOperation("√", { sqrt($0) })
         // get this: there is a named function, called sqrt that is Double -> Double
@@ -134,6 +135,8 @@ class CalculatorBrain
         return evaluate()
     }
     
+    // external calls to the brain start here, taking in the operator symbol and eventually
+    // returning the result as a Double
     func performOperation(symbol: String) -> Double? {
         // here, operation is really an Optional, because the key we look up may not actually exist or have 
         // a value. So we use an if let to conditionally unwrap it for use

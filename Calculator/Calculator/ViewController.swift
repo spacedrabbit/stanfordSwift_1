@@ -28,7 +28,7 @@ class ViewController : UIViewController {
         
         display.text = "0.0"
         history.text = ""
-        operandStack = [Double]()
+        // FIXME: need to clear brain's stack also
     }
     
     // this action handles all digit & . presses
@@ -43,20 +43,12 @@ class ViewController : UIViewController {
             digit = "\(constantValue)"
             display.text = digit
             enterKey()
-            
+            // TODO: I need to add  cos, sin to Brain
             return // exits early since a constant involves displaying a value
-                   // and then immediately adding it to the stack, whereas a operand
-                   // may be followed by more operands
         }
         
-        /* 
-            essentially, userIsTypingANumber is also a check for
-            whether the first character has been entered. this is why
-            we can check for "." at this point in order to correctly display
-            the decimal value when a user begins an operand by typing "."
-        */
         if userIsTypingANumber {
-            //if a decimal already exists, and the "." button is pressed
+            //if a decimal already exists, and the "." button is pressed, return early and do nothing
             if display.text?.rangeOfString(".") != nil && digit == "."{ return }
             display.text = display.text! + digit
             
@@ -64,11 +56,6 @@ class ViewController : UIViewController {
             display.text = (digit == ".") ? "0." : digit // prefixes a value < 0 with 0.
             userIsTypingANumber = true
         }
-    }
-    
-    func valueForConstant(symbol: String) -> Double? {
-        let allConstants = Set.init(knownConstants.keys.array)
-        return allConstants.contains(symbol) ? knownConstants[symbol] : nil;
     }
     
     @IBAction func operate(sender: UIButton) {
@@ -79,6 +66,8 @@ class ViewController : UIViewController {
 
         if let operation = sender.currentTitle {
         	addActionToHistory(operation)
+            // this needs an if let since .performOperation returns a Double?
+            // because we need to account for someone pressing an operator on an empty operand stack
             if let result = brain.performOperation(operation) {
                 displayValue = result
             } else {
@@ -88,25 +77,27 @@ class ViewController : UIViewController {
         }
     }
 
-	// for displaying operand/operator history, will not work if history is too long
-    func addActionToHistory(additionalText: String){
-        if let currentHistory = self.history.text {
-           self.history.text = currentHistory + "\n" + additionalText
-        }
-    }
-
-    var operandStack = [Double]() //older
-
     @IBAction func enterKey() {
         userIsTypingANumber = false
         if let result = brain.pushOperand(displayValue) {
             displayValue = result
             addActionToHistory("\(displayValue)") //older
-        	operandStack.append(displayValue) //older
-        	println("operand stack = \(operandStack)") //older
         } else {
             // homework assignment #2
             displayValue = 0.0
+        }
+    }
+    
+    // provides Double value for symbolic constants such as Pi
+    func valueForConstant(symbol: String) -> Double? {
+        let allConstants = Set.init(knownConstants.keys.array)
+        return allConstants.contains(symbol) ? knownConstants[symbol] : nil;
+    }
+    
+    // for displaying operand/operator history, will not work if history is too long
+    func addActionToHistory(additionalText: String){
+        if let currentHistory = self.history.text {
+            self.history.text = currentHistory + "\n" + additionalText
         }
     }
     
