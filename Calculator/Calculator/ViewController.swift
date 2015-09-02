@@ -11,9 +11,9 @@ import UIKit
 class ViewController : UIViewController {
 
     @IBOutlet weak var display: UILabel!
-    @IBOutlet weak var history: UILabel!
-    
+
     var userIsTypingANumber: Bool = false
+    var brain = CalculatorBrain()
     var knownConstants = ["π" : M_PI, "e" : M_E]
     
     @IBAction func clearAll() {
@@ -71,67 +71,42 @@ class ViewController : UIViewController {
     }
     
     @IBAction func operate(sender: UIButton) {
-        
-        let operation = sender.currentTitle!
+
         if userIsTypingANumber{
             enterKey()
         }
-    
-        addActionToHistory(operation)
-        
-        switch operation {
-            
-        case "×": performOperation { $0 * $1 }
-        case "÷": performOperation { $1 / $0 }
-        case "+": performOperation { $0 + $1 }
-        case "−": performOperation { $1 - $0 }
-        case "√": performOperation { sqrt($0) }
-            
-        // these two math() functions are explained in BSD man pages
-        case "cos": performOperation { __cospi($0 / 180) }
-        case "sin": performOperation { __sinpi($0 / 180) }
-            
-        default:
-            println("Unknown case encountered")
+
+        if let operation = sender.currentTitle {
+        	addActionToHistory(operation)
+            if let result = brain.performOperation(operation) {
+                displayValue = result
+            } else {
+                displayValue = 0.0
+                // homework #2
+            }
         }
-        
     }
-    
-    // for displaying operand/operator history, will not work if history is too long
+
+	// for displaying operand/operator history, will not work if history is too long
     func addActionToHistory(additionalText: String){
         if let currentHistory = self.history.text {
            self.history.text = currentHistory + "\n" + additionalText
         }
     }
-    
-    func performOperation(operation: (Double, Double) -> Double){
-        if operandStack.count >= 2{
-            
-            let op1 = operandStack.removeLast()
-            let op2 = operandStack.removeLast()
-            
-            displayValue = operation(op1, op2)
-            enterKey()
-        }
-    }
-    
-    private func performOperation(operation: Double -> Double){
-        if operandStack.count >= 1{
-            
-            let op1 = operandStack.removeLast()
-            
-            displayValue = operation(op1)
-            enterKey()
-        }
-    }
-    
-    var operandStack = [Double]()
-    
+
+    var operandStack = [Double]() //older
+
     @IBAction func enterKey() {
         userIsTypingANumber = false
-        addActionToHistory("\(displayValue)")
-        operandStack.append(displayValue)
-        println("operand stack = \(operandStack)")
+        if let result = brain.pushOperand(displayValue) {
+            displayValue = result
+            addActionToHistory("\(displayValue)") //older
+        	operandStack.append(displayValue) //older
+        	println("operand stack = \(operandStack)") //older
+        } else {
+            // homework assignment #2
+            displayValue = 0.0
+        }
     }
     
     // initializer class
