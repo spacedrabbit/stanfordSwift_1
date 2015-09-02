@@ -13,3 +13,5 @@ Adheres to the following "Required tasks"
 - Avoid the problems listed in the Evaluation section below. This list grows as the quarter progresses, so be sure to check it again with each assignment
 
 Extra credit tasks not included.
+
+![](http://i.imgur.com/c0f3sAa.png)
