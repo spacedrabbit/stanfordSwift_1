@@ -28,7 +28,7 @@ class ViewController : UIViewController {
         
         display.text = "0.0"
         history.text = ""
-        // FIXME: need to clear brain's stack also
+        brain.clearBrain()
     }
     
     // this action handles all digit & . presses
@@ -43,8 +43,8 @@ class ViewController : UIViewController {
             digit = "\(constantValue)"
             display.text = digit
             enterKey()
-            // TODO: I need to add  cos, sin to Brain
-            return // exits early since a constant involves displaying a value
+            return // FIXME: display isn't cleared, so if you press ⏎ after inputting pi, it will
+            // and pi again (and again..) to the operand stack
         }
         
         if userIsTypingANumber {

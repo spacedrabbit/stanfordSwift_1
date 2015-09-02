@@ -68,6 +68,9 @@ class CalculatorBrain
         // get this: there is a named function, called sqrt that is Double -> Double
         // so we can simplify our statement as follows
         knownOps["√"] = Op.UnaryOperation("√", sqrt )
+        knownOps["cos"] = Op.UnaryOperation("cos", { __cospi($0/180) })
+        knownOps["sin"] = Op.UnaryOperation("sin", { __sinpi($0/180) })
+        
     }
     
     // here, were could declare the parameter of evaluate(_:) as a 'var' in order to use a mutable copy
@@ -144,5 +147,10 @@ class CalculatorBrain
             opStack.append(operation)
         }
         return evaluate()
+    }
+    
+    func clearBrain() {
+        opStack = [Op]()
+        println("opStack cleared: \(opStack)")
     }
 }
