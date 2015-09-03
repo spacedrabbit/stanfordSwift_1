@@ -78,12 +78,15 @@ class ViewController : UIViewController {
     }
 
     @IBAction func enterKey() {
+        
         userIsTypingANumber = false
-        if let result = brain.pushOperand(displayValue) {
-            displayValue = result
-            addActionToHistory("\(displayValue)") //older
-        } else {
-            // homework assignment #2
+        if let validValue = displayValue {
+            if let result = brain.pushOperand(validValue) {
+                displayValue = result
+                addActionToHistory("\(validValue)") //older
+            }
+        }
+        else {
             displayValue = 0.0
         }
     }
@@ -102,13 +105,17 @@ class ViewController : UIViewController {
     }
     
     // initializer class
-    var displayValue: Double{
+    var displayValue: Double?{
         get {
-            return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
+            let formatter = NSNumberFormatter()
+            if let validValue = formatter.numberFromString(display.text!) {
+                return validValue.doubleValue
+            }
+            return nil
         }
         set {
-            // newValue is a reserved keyword for setters
-            display.text = "\(newValue)"
+            // MARK: Not sure if force unwrapping is correct here
+            display.text = "\(newValue!)"
             userIsTypingANumber = false
         }
     }
