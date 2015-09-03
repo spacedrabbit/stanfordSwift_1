@@ -65,14 +65,10 @@ class ViewController : UIViewController {
         }
 
         if let operation = sender.currentTitle {
-        	addActionToHistory(operation)
             // this needs an if let since .performOperation returns a Double?
             // because we need to account for someone pressing an operator on an empty operand stack
             if let result = brain.performOperation(operation) {
                 displayValue = result
-            } else {
-                displayValue = 0.0
-                // homework #2
             }
         }
     }
@@ -83,11 +79,7 @@ class ViewController : UIViewController {
         if let validValue = displayValue {
             if let result = brain.pushOperand(validValue) {
                 displayValue = result
-                addActionToHistory("\(validValue)") //older
             }
-        }
-        else {
-            displayValue = 0.0
         }
     }
     
@@ -97,13 +89,6 @@ class ViewController : UIViewController {
         return allConstants.contains(symbol) ? knownConstants[symbol] : nil;
     }
     
-    // for displaying operand/operator history, will not work if history is too long
-    func addActionToHistory(additionalText: String){
-        if let currentHistory = self.history.text {
-            self.history.text = currentHistory + "\n" + additionalText
-        }
-    }
-    
     // initializer class
     var displayValue: Double?{
         get {
@@ -111,15 +96,14 @@ class ViewController : UIViewController {
             if let validValue = formatter.numberFromString(display.text!) {
                 return validValue.doubleValue
             }
+            display.text = "0.0"
             return nil
         }
         set {
-            // MARK: Not sure if force unwrapping is correct here
             display.text = "\(newValue!)"
             userIsTypingANumber = false
         }
     }
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()

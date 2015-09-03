@@ -19,6 +19,7 @@ class CalculatorBrain
     // which just returns a string from the variable .description
     private enum Op: Printable{
         case Operand(Double)
+        case Variable(String)
         case UnaryOperation(String, Double -> Double)
         case BinaryOperation(String, (Double, Double) -> Double)
         
@@ -28,6 +29,8 @@ class CalculatorBrain
                 switch self {
                 case .Operand(let operand):
                     return "\(operand)"
+                case .Variable(let symbol):
+                    return symbol
                 case .UnaryOperation(let symbol, _):
                     return symbol
                 case .BinaryOperation(let symbol, _):
@@ -39,6 +42,7 @@ class CalculatorBrain
     
     private var opStack = [Op]()
     private var knownOps = [String: Op]()
+    var variableValues = [String: Double]()
     
     init(){
         
@@ -94,6 +98,12 @@ class CalculatorBrain
             case .Operand(let operand):
                 return (operand, remainingOps)
                 
+            // MARK: finish this case
+            case .Variable(let symbol):
+                if let value = variableValues[symbol] {
+                    return (value, remainingOps)
+                }
+                
             // if the Op enum is of type .UnaryOperation, we're intereste in the Op operation, which we assign to 'operation'
             // We make a recursive call to evaluate(_:) passing it the remainingOps and set it to a constant
             // If that constant returns a tuple of (Double? : [Op]) and the .result value isn't nil, we unwrap it for further use
@@ -128,6 +138,7 @@ class CalculatorBrain
     // evalutes opStack and return value
     func evaluate() -> Double? {
         let (result, remainder) = evaluate(opStack)
+        
         println("\(opStack) = \(result) with \(remainder) left over")
         return result
     }
@@ -135,6 +146,11 @@ class CalculatorBrain
     func pushOperand(operand: Double) -> Double? {
         // this statement effectively says, to add type Op.Operand with value of operand to the opStack
         opStack.append(Op.Operand(operand))
+        return evaluate()
+    }
+    
+    func pushOperand(symbol: String) -> Double? {
+        opStack.append(Op.Variable(symbol))
         return evaluate()
     }
     
