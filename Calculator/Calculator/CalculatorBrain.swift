@@ -77,20 +77,34 @@ class CalculatorBrain: Printable
         
     }
     
+    /*
+        Not entirely sure this solution was what they were looking for, even though 
+        I believe it matches the requirements and hints. 
+    
+        The buildDescription(_:) method behaves only semi-recursively, and only really 
+        in the case of Unary and Binary operations. When there are multiple operands
+        entered to the stack in sequence, there is a while loop in the description that
+        runs if the [remainingOps].count > 0.
+    
+        This effectively places a "," between individual operations as an operation is
+        represented by a string produced by one iteration of the loop. 
+    */
     var description: String{
         get {
-            return buildDescription()
+            
+            var tempOps = opStack
+            var individualOperations = [String]()
+            
+            while !tempOps.isEmpty{
+                let individualOperation = buildDescription(tempOps)
+                if let validDescription = individualOperation.opDescription {
+                    individualOperations.append(validDescription)
+                }
+                tempOps = individualOperation.remainingOps
+            }
+            
+            return "\(individualOperations)"
         }
-    }
-    
-    func buildDescription() -> String {
-        var fullDescription: String = ""
-        let individualOperation = buildDescription(opStack)
-        if let validDescription = individualOperation.opDescription {
-            return validDescription
-        }
-        // TODO: Add commas between individual statements
-        return fullDescription
     }
     
     private func buildDescription(ops:[Op]) -> (opDescription: String?, remainingOps: [Op] ){
@@ -122,10 +136,8 @@ class CalculatorBrain: Printable
                     }
                 }
             }
-            
         }
-        
-        return (nil, opStack)
+        return (nil, ops)
     }
     
     
