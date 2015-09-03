@@ -8,7 +8,7 @@
 
 import Foundation
 
-class CalculatorBrain
+class CalculatorBrain: Printable
 {
     // enums are useful for when some things are related, but they are exclusively
     // one of the associated members -- you can be an Op.Operand, but not an Op.Unary at the
@@ -77,6 +77,58 @@ class CalculatorBrain
         
     }
     
+    var description: String{
+        get {
+            return buildDescription()
+        }
+    }
+    
+    func buildDescription() -> String {
+        var fullDescription: String = ""
+        let individualOperation = buildDescription(opStack)
+        if let validDescription = individualOperation.opDescription {
+            return validDescription
+        }
+        // TODO: Add commas between individual statements
+        return fullDescription
+    }
+    
+    private func buildDescription(ops:[Op]) -> (opDescription: String?, remainingOps: [Op] ){
+        
+        if !ops.isEmpty{
+            
+            var remainingOps = ops
+            let lastOp = remainingOps.removeLast()
+            
+            switch lastOp {
+            case .Operand(let operand):
+                return ("\(operand)", remainingOps)
+                
+            case .Variable(let symbol):
+                if let validatedSymbol = variableValues[symbol] {
+                    return (symbol, remainingOps)
+                }
+            case .UnaryOperation(let symbol, _):
+                let continuedDescription = buildDescription(remainingOps)
+                if let validString = continuedDescription.opDescription {
+                    return ("\(symbol)(\(validString))", continuedDescription.remainingOps)
+                }
+            case .BinaryOperation(let symbol, _):
+                let op1Description = buildDescription(remainingOps)
+                if let validOp1Description = op1Description.opDescription {
+                    let op2Description = buildDescription(op1Description.remainingOps)
+                    if let validOp2Description = op2Description.opDescription {
+                        return ("\(validOp1Description) \(symbol) \(validOp2Description)", op2Description.remainingOps)
+                    }
+                }
+            }
+            
+        }
+        
+        return (nil, opStack)
+    }
+    
+    
     // here, were could declare the parameter of evaluate(_:) as a 'var' in order to use a mutable copy
     //      func evaluate(var ops: [Op]) -> (result: Double?, remainingOps: [Op])
     //
@@ -139,7 +191,11 @@ class CalculatorBrain
     func evaluate() -> Double? {
         let (result, remainder) = evaluate(opStack)
         
-        println("\(opStack) = \(result) with \(remainder) left over")
+        if let validResult = result {
+            println("\(opStack) = \(validResult) with \(remainder) left over")
+            println("The brain: \(self)" )
+            return validResult
+        }
         return result
     }
     
