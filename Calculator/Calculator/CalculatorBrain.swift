@@ -40,28 +40,30 @@ class CalculatorBrain: Printable
         }
     }
     
+    var memoryValue: Double? {
+        get{
+            if let value = variableValues["M"] {
+                println("returning a valid mem of: \(value)")
+                return value
+            }
+            return nil
+        }
+        set{
+            println("setting the value of memory to: \(newValue)")
+            variableValues["M"] = newValue
+        }
+    }
+    
     private var opStack = [Op]()
     private var knownOps = [String: Op]()
-    var variableValues = [String: Double]()
+    var variableValues: Dictionary<String, Double?> = ["π" : M_PI, "e" : M_E, "M" : nil]
     
     init(){
-        
         // we put this funciton inside of init because otherwise we'd have to add private to it
-        
-        // implement this for hw
+
 //        func learnOp(op: Op){
 //            knownOps[op.description] = op
 //        }
-        
-        // these dictionary values match the operations defined in the first and second lecture
-        
-        // point of focus: binary operators in swift are actually functions that specify that they can be infix
-        // so we could rewrite the following as it is below. Note that we cant do this for division or
-        // subtraction because we reverse the operands since they are removed from the stack in reverse order
-        //        knownOps["×"] = Op.BinaryOperation("×", { $0 * $1 })
-        //        knownOps["÷"] = Op.BinaryOperation("÷", { $1 / $0 })
-        //        knownOps["+"] = Op.BinaryOperation("+", { $0 + $1 })
-        //        knownOps["−"] = Op.BinaryOperation("−", { $1 - $0 })
         
         knownOps["×"] = Op.BinaryOperation("×", *)
         knownOps["÷"] = Op.BinaryOperation("÷") { $1 / $0 }
@@ -93,22 +95,25 @@ class CalculatorBrain: Printable
         get {
             
             var tempOpStack = opStack
-            var individualOperations = [String]()
+            var allOperations = [String]()
             
             while !tempOpStack.isEmpty{
                 let individualOperation = buildDescription(tempOpStack)
                 if let validDescription = individualOperation.opDescription {
-                    individualOperations.append(validDescription)
+                    allOperations.append(validDescription)
+                } else {
+                    allOperations.append("?")
                 }
+                
                 tempOpStack = individualOperation.remainingOps
             }
             
-            return "\(individualOperations)"
+            return "\(allOperations)"
         }
     }
     
     private func buildDescription(ops:[Op]) -> (opDescription: String?, remainingOps: [Op] ){
-        
+
         if !ops.isEmpty{
             
             var remainingOps = ops
@@ -121,7 +126,10 @@ class CalculatorBrain: Printable
             case .Variable(let symbol):
                 if let validatedSymbol = variableValues[symbol] {
                     return (symbol, remainingOps)
+                } else {
+                    return (nil, remainingOps)
                 }
+                
             case .UnaryOperation(let symbol, _):
                 let continuedDescription = buildDescription(remainingOps)
                 if let validString = continuedDescription.opDescription {
@@ -141,7 +149,6 @@ class CalculatorBrain: Printable
         return (nil, ops)
     }
     
-    
     // here, were could declare the parameter of evaluate(_:) as a 'var' in order to use a mutable copy
     //      func evaluate(var ops: [Op]) -> (result: Double?, remainingOps: [Op])
     //
@@ -152,8 +159,7 @@ class CalculatorBrain: Printable
     private func evaluate(ops: [Op]) -> (result: Double?, remainingOps: [Op]) {
         
         if !ops.isEmpty{
-            
-            var remainingOps = ops // this copies the values since it isn't a class. a class would get another reference instead
+            var remainingOps = ops // this copies ops
             let op = remainingOps.removeLast()
             
             switch op {
@@ -206,14 +212,13 @@ class CalculatorBrain: Printable
         
         if let validResult = result {
             println("\(opStack) = \(validResult) with \(remainder) left over")
-            println("The brain: \(self)" )
+            //println("The brain: \(self)" )
             return validResult
         }
         return result
     }
     
     func pushOperand(operand: Double) -> Double? {
-        // this statement effectively says, to add type Op.Operand with value of operand to the opStack
         opStack.append(Op.Operand(operand))
         return evaluate()
     }

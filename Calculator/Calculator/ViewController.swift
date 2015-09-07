@@ -23,18 +23,25 @@ class ViewController : UIViewController {
         display.alpha = 0.0
         UIView.animateWithDuration(0.25, animations: {
             self.display.alpha = 1.0
-        } )
+        })
         UIView.setAnimationCurve(.EaseIn)
         
         display.text = "0.0"
-        history.text = ""
+        history.text = "...="
         brain.clearBrain()
     }
     
     @IBAction func saveVariableToMemory(sender: UIButton) {
+        if let value = displayValue {
+            brain.memoryValue = value
+            userIsTypingANumber = false
+        }
     }
     
     @IBAction func retrieveVariableFromMemory(sender: UIButton) {
+        if let evaluation = brain.pushOperand(sender.currentTitle!){
+            displayValue = evaluation
+        }
     }
     
     // this action handles all digit & . presses
@@ -44,13 +51,20 @@ class ViewController : UIViewController {
         
         if let constantValue = valueForConstant(digit) {
             
-            if userIsTypingANumber { enterKey() } // clears display and adds value to operand stack
+            // clears screen and adds last value to operand stack
+            if userIsTypingANumber { enterKey() }
             
-            digit = "\(constantValue)"
-            display.text = digit
-            enterKey()
-            return // FIXME: display isn't cleared, so if you press ⏎ after inputting pi, it will
-            // add pi again (and again..) to the operand stack
+            // this now only sends the "π" to the brain
+            // what is displayed on screen is the result of evaluate()
+            if let result = brain.pushOperand(digit){
+                displayValue = result
+                userIsTypingANumber = false
+            }
+            // FIXME: display isn't cleared, so if you press ⏎ 
+            // after inputting pi, it will add pi again (and again..)
+            // to the operand stack
+            
+            return
         }
         
         if userIsTypingANumber {
@@ -71,14 +85,13 @@ class ViewController : UIViewController {
         }
 
         if let operation = sender.currentTitle {
-            // this needs an if let since .performOperation returns a Double?
-            // because we need to account for someone pressing an operator on an empty operand stack
             if let result = brain.performOperation(operation) {
                 displayValue = result
             }
         }
     }
 
+    // ---- ENTER KEY ---- //
     @IBAction func enterKey() {
         
         userIsTypingANumber = false
