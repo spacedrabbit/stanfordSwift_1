@@ -92,15 +92,15 @@ class CalculatorBrain: Printable
     var description: String{
         get {
             
-            var tempOps = opStack
+            var tempOpStack = opStack
             var individualOperations = [String]()
             
-            while !tempOps.isEmpty{
-                let individualOperation = buildDescription(tempOps)
+            while !tempOpStack.isEmpty{
+                let individualOperation = buildDescription(tempOpStack)
                 if let validDescription = individualOperation.opDescription {
                     individualOperations.append(validDescription)
                 }
-                tempOps = individualOperation.remainingOps
+                tempOpStack = individualOperation.remainingOps
             }
             
             return "\(individualOperations)"
@@ -132,7 +132,8 @@ class CalculatorBrain: Printable
                 if let validOp1Description = op1Description.opDescription {
                     let op2Description = buildDescription(op1Description.remainingOps)
                     if let validOp2Description = op2Description.opDescription {
-                        return ("\(validOp1Description) \(symbol) \(validOp2Description)", op2Description.remainingOps)
+                        var finalDescription = "(\(validOp2Description) \(symbol) \(validOp1Description))"
+                        return (finalDescription, op2Description.remainingOps)
                     }
                 }
             }

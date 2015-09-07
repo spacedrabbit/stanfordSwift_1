@@ -31,6 +31,12 @@ class ViewController : UIViewController {
         brain.clearBrain()
     }
     
+    @IBAction func saveVariableToMemory(sender: UIButton) {
+    }
+    
+    @IBAction func retrieveVariableFromMemory(sender: UIButton) {
+    }
+    
     // this action handles all digit & . presses
     @IBAction func appendDigit(sender: UIButton) {
         
@@ -44,7 +50,7 @@ class ViewController : UIViewController {
             display.text = digit
             enterKey()
             return // FIXME: display isn't cleared, so if you press ⏎ after inputting pi, it will
-            // and pi again (and again..) to the operand stack
+            // add pi again (and again..) to the operand stack
         }
         
         if userIsTypingANumber {
@@ -89,9 +95,10 @@ class ViewController : UIViewController {
         return allConstants.contains(symbol) ? knownConstants[symbol] : nil;
     }
     
-    // initializer class
+    // initializer
     var displayValue: Double?{
         get {
+            // attempts to always show a valid value, otherwise it returns nil
             let formatter = NSNumberFormatter()
             if let validValue = formatter.numberFromString(display.text!) {
                 return validValue.doubleValue
@@ -105,17 +112,14 @@ class ViewController : UIViewController {
         }
     }
     
+    // ---- inherited methods ---- //
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.history.numberOfLines = 0
-        self.history.textAlignment = .Right
-        self.history.text = ""
-        // Do any additional setup after loading the view, typically from a nib.
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
 
 
