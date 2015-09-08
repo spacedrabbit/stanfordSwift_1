@@ -15,8 +15,6 @@ class CalculatorBrain: Printable
     // same time. In our "operation stack", the values stored in the array will either
     // be an operator or an operand
     
-    // Printable: (classes or structs) this is a protocol. This enum implements the Printable protocol
-    // which just returns a string from the variable .description
     private enum Op: Printable{
         case Operand(Double)
         case Variable(String)
@@ -42,11 +40,7 @@ class CalculatorBrain: Printable
     
     var memoryValue: Double? {
         get{
-            if let value = variableValues["M"] {
-                println("returning a valid mem of: \(value)")
-                return value
-            }
-            return nil
+            return variableValues["M"]!
         }
         set{
             println("setting the value of memory to: \(newValue)")
@@ -59,56 +53,33 @@ class CalculatorBrain: Printable
     var variableValues: Dictionary<String, Double?> = ["π" : M_PI, "e" : M_E, "M" : nil]
     
     init(){
-        // we put this funciton inside of init because otherwise we'd have to add private to it
-
-//        func learnOp(op: Op){
-//            knownOps[op.description] = op
-//        }
+        // we put this funciton inside of init because otherwise we'd have to add 'private' to it
+        func learnOp(op: Op){
+            knownOps[op.description] = op
+        }
         
-        knownOps["×"] = Op.BinaryOperation("×", *)
-        knownOps["÷"] = Op.BinaryOperation("÷") { $1 / $0 }
-        knownOps["+"] = Op.BinaryOperation("+", +)
-        knownOps["−"] = Op.BinaryOperation("−") { $1 - $0 }
-        
-        //knownOps["√"] = Op.UnaryOperation("√", { sqrt($0) })
-        // get this: there is a named function, called sqrt that is Double -> Double
-        // so we can simplify our statement as follows
-        knownOps["√"] = Op.UnaryOperation("√", sqrt )
-        knownOps["cos"] = Op.UnaryOperation("cos", { __cospi($0/180) })
-        knownOps["sin"] = Op.UnaryOperation("sin", { __sinpi($0/180) })
+        learnOp(Op.BinaryOperation("×", *))
+        learnOp(Op.BinaryOperation("÷") { $1 / $0 })
+        learnOp(Op.BinaryOperation("+", +))
+        learnOp(Op.BinaryOperation("−") { $1 - $0 })
+        learnOp(Op.UnaryOperation("√", sqrt ))
+        learnOp(Op.UnaryOperation("cos", { __cospi($0/180) }))
+        learnOp(Op.UnaryOperation("sin", { __sinpi($0/180) }))
         
     }
     
-    /*
-        Not entirely sure this solution was what they were looking for, even though 
-        I believe it matches the requirements and hints. 
-    
-        The buildDescription(_:) method behaves only semi-recursively, and only really 
-        in the case of Unary and Binary operations. When there are multiple operands
-        entered to the stack in sequence, there is a while loop in the description that
-        runs if the [remainingOps].count > 0.
-    
-        This effectively places a "," between individual operations as an operation is
-        represented by a string produced by one iteration of the loop. 
-    */
     var description: String{
         get {
             
-            var tempOpStack = opStack
-            var allOperations = [String]()
+            var (results, ops ) = ("", opStack)
             
-            while !tempOpStack.isEmpty{
-                let individualOperation = buildDescription(tempOpStack)
-                if let validDescription = individualOperation.opDescription {
-                    allOperations.append(validDescription)
-                } else {
-                    allOperations.append("?")
-                }
-                
-                tempOpStack = individualOperation.remainingOps
+            while ops.count > 0{
+                var current: String?
+                (current, ops) = buildDescription(ops)
+                results = (results == "" ) ? current! : "\(current!), \(results)"
             }
             
-            return "\(allOperations)"
+            return results
         }
     }
     
@@ -126,8 +97,6 @@ class CalculatorBrain: Printable
             case .Variable(let symbol):
                 if let validatedSymbol = variableValues[symbol] {
                     return (symbol, remainingOps)
-                } else {
-                    return (nil, remainingOps)
                 }
                 
             case .UnaryOperation(let symbol, _):
@@ -137,7 +106,10 @@ class CalculatorBrain: Printable
                 }
             case .BinaryOperation(let symbol, _):
                 let op1Description = buildDescription(remainingOps)
-                if let validOp1Description = op1Description.opDescription {
+                if var validOp1Description = op1Description.opDescription {
+                    if remainingOps.count - op1Description.remainingOps.count > 2 {
+                        validOp1Description = "(\(validOp1Description))"
+                    }
                     let op2Description = buildDescription(op1Description.remainingOps)
                     if let validOp2Description = op2Description.opDescription {
                         var finalDescription = "(\(validOp2Description) \(symbol) \(validOp1Description))"
@@ -146,7 +118,7 @@ class CalculatorBrain: Printable
                 }
             }
         }
-        return (nil, ops)
+        return ("?", ops)
     }
     
     // here, were could declare the parameter of evaluate(_:) as a 'var' in order to use a mutable copy
@@ -194,8 +166,6 @@ class CalculatorBrain: Printable
                     if let operand2 = op2Evaluation.result {
                         
                         // similiar to the above, operation represents (Double, Double) -> Double
-                        // So the operation gets passed the two operand Doubles in order to return a Double
-                        // to satisfy the first tuple value of evaluate(_:)
                         return (operation(operand1, operand2), op2Evaluation.remainingOps)
                     }
                 }
@@ -211,7 +181,7 @@ class CalculatorBrain: Printable
         let (result, remainder) = evaluate(opStack)
         
         if let validResult = result {
-            println("\(opStack) = \(validResult) with \(remainder) left over")
+            //println("\(opStack) = \(showStack())")
             //println("The brain: \(self)" )
             return validResult
         }
@@ -228,19 +198,20 @@ class CalculatorBrain: Printable
         return evaluate()
     }
     
-    // external calls to the brain start here, taking in the operator symbol and eventually
-    // returning the result as a Double
+    // external calls to the brain start here, taking in the operator symbol
     func performOperation(symbol: String) -> Double? {
-        // here, operation is really an Optional, because the key we look up may not actually exist or have 
-        // a value. So we use an if let to conditionally unwrap it for use
         if let operation = knownOps[symbol] {
             opStack.append(operation)
         }
         return evaluate()
     }
     
+    func showStack() -> String? {
+        return " ".join(opStack.map{ "\($0)!" })
+    }
+    
     func clearBrain() {
         opStack = [Op]()
-        println("opStack cleared: \(opStack)")
+        variableValues["M"] = nil
     }
 }

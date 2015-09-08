@@ -27,7 +27,7 @@ class ViewController : UIViewController {
         UIView.setAnimationCurve(.EaseIn)
         
         display.text = "0.0"
-        history.text = "...="
+        history.text = ""
         brain.clearBrain()
     }
     
@@ -35,12 +35,16 @@ class ViewController : UIViewController {
         if let value = displayValue {
             brain.memoryValue = value
             userIsTypingANumber = false
+        } else {
+            display.text = "Could not save"
         }
     }
     
     @IBAction func retrieveVariableFromMemory(sender: UIButton) {
         if let evaluation = brain.pushOperand(sender.currentTitle!){
             displayValue = evaluation
+        } else {
+            display.text = "Memory not set"
         }
     }
     
@@ -58,7 +62,10 @@ class ViewController : UIViewController {
             // what is displayed on screen is the result of evaluate()
             if let result = brain.pushOperand(digit){
                 displayValue = result
+                println("the result: \(result)")
                 userIsTypingANumber = false
+            } else {
+                displayValue = nil
             }
             // FIXME: display isn't cleared, so if you press ⏎ 
             // after inputting pi, it will add pi again (and again..)
@@ -87,8 +94,12 @@ class ViewController : UIViewController {
         if let operation = sender.currentTitle {
             if let result = brain.performOperation(operation) {
                 displayValue = result
+            } else {
+                displayValue = nil
             }
         }
+        
+        history.text = "\(brain)"
     }
 
     // ---- ENTER KEY ---- //
@@ -99,7 +110,12 @@ class ViewController : UIViewController {
             if let result = brain.pushOperand(validValue) {
                 displayValue = result
             }
+            else {
+                displayValue = nil
+            }
         }
+        
+        history.text = "\(brain)"
     }
     
     // provides Double value for symbolic constants such as Pi
@@ -108,19 +124,24 @@ class ViewController : UIViewController {
         return allConstants.contains(symbol) ? knownConstants[symbol] : nil;
     }
     
-    // initializer
+    // attempts to always show a valid value, otherwise it returns nil
     var displayValue: Double?{
         get {
-            // attempts to always show a valid value, otherwise it returns nil
-            let formatter = NSNumberFormatter()
-            if let validValue = formatter.numberFromString(display.text!) {
-                return validValue.doubleValue
-            }
-            display.text = "0.0"
-            return nil
+            return NSNumberFormatter().numberFromString(display.text!)?.doubleValue
         }
         set {
-            display.text = "\(newValue!)"
+            let formatter = NSNumberFormatter()
+            if newValue != nil {
+                formatter.numberStyle = .DecimalStyle
+                formatter.maximumSignificantDigits = 10
+                formatter.minimumFractionDigits = 1
+                if let stringValue = formatter.stringFromNumber(newValue!){
+                    display.text = stringValue
+                }
+            } else {
+                display.text = " "
+            }
+            
             userIsTypingANumber = false
         }
     }
