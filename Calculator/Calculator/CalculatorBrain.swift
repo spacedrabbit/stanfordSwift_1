@@ -69,6 +69,25 @@ class CalculatorBrain
         knownOps["√"] = Op.UnaryOperation("√", sqrt )
     }
     
+    var program: AnyObject {
+        get {
+            return opStack.map{ $0.description } // returns an array for the opStack element descriptions
+        }
+        set {
+            // making sure that the object being passed in is an array of strings
+            if let opSymbols = newValue as? Array<String> {
+                var newOpStack = [Op]()
+                for opSymbol in opSymbols {
+                    if let op = knownOps[opSymbol] {
+                        newOpStack.append(op)
+                    } else if let operand = NSNumberFormatter().numberFromString(opSymbol)?.doubleValue {
+                        newOpStack.append(.Operand(operand))
+                    }
+                }
+            }
+        }
+    }
+    
     // here, were could declare the parameter of evaluate(_:) as a 'var' in order to use a mutable copy
     //      func evaluate(var ops: [Op]) -> (result: Double?, remainingOps: [Op])
     //
